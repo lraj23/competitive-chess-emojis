@@ -38,11 +38,11 @@ app.message('', async ({ message }) => {
 					"type": "section",
 					"text": {
 						"type": "mrkdwn",
-						"text": `You aren't opted in to Chess Emojis Reactions! Opt in with /chess-emojis-react-opt-in`
+						"text": `You aren't opted in to Chess Emojis Reactions! Opt in with /ccemojis-game-opt-in`
 					}
 				}
 			],
-			text: `You aren't opted in to Chess Emojis Reactions! Opt in with /chess-emojis-react-opt-in`,
+			text: `You aren't opted in to Chess Emojis Reactions! Opt in with /ccemojis-game-opt-in`,
 			thread_ts: ((message.thread_ts == message.ts) ? undefined : message.thread_ts)
 		});
 		return;
@@ -97,7 +97,7 @@ app.message('', async ({ message }) => {
 	});
 });
 
-app.command('/chess-emojis-data-opt-in', async (interaction) => {
+app.command('/ccemojis-data-opt-in', async (interaction) => {
 	await interaction.ack();
 	await logInteraction(interaction);
 	let userId = interaction.payload.user_id;
@@ -121,7 +121,7 @@ app.command('/chess-emojis-data-opt-in', async (interaction) => {
 	saveState(optedIn);
 });
 
-app.command('/chess-emojis-react-opt-in', async (interaction) => {
+app.command('/ccemojis-game-opt-in', async (interaction) => {
 	await interaction.ack();
 	await logInteraction(interaction);
 	let userId = interaction.payload.user_id;
@@ -146,7 +146,7 @@ app.command('/chess-emojis-react-opt-in', async (interaction) => {
 	saveState(optedIn);
 });
 
-app.command('/chess-emojis-explain-opt-in', async (interaction) => {
+app.command('/ccemojis-explain-opt-in', async (interaction) => {
 	await interaction.ack();
 	await logInteraction(interaction);
 	let userId = interaction.payload.user_id;
@@ -172,7 +172,7 @@ app.command('/chess-emojis-explain-opt-in', async (interaction) => {
 	saveState(optedIn);
 });
 
-app.command('/chess-emojis-data-opt-out', async (interaction) => {
+app.command('/ccemojis-data-opt-out', async (interaction) => {
 	await interaction.ack();
 	await logInteraction(interaction);
 	let userId = interaction.payload.user_id;
@@ -198,7 +198,7 @@ app.command('/chess-emojis-data-opt-out', async (interaction) => {
 	});
 });
 
-app.command('/chess-emojis-react-opt-out', async (interaction) => {
+app.command('/ccemojis-game-opt-out', async (interaction) => {
 	await interaction.ack();
 	await logInteraction(interaction);
 	let userId = interaction.payload.user_id;
@@ -223,7 +223,7 @@ app.command('/chess-emojis-react-opt-out', async (interaction) => {
 	});
 });
 
-app.command('/chess-emojis-explain-opt-out', async (interaction) => {
+app.command('/ccemojis-explain-opt-out', async (interaction) => {
 	await interaction.ack();
 	await logInteraction(interaction);
 	let userId = interaction.payload.user_id;

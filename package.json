@@ -1,0 +1,14 @@
+{
+	"name": "competitive-chess-emojis",
+	"version": "0.9.0",
+	"description": "React to your messages with chess ratings, climb up the leaderboard!",
+	"main": "app.js",
+	"scripts": {
+		"start": "node --env-file=.env app.js",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"license": "MIT",
+	"dependencies": {
+		"@slack/bolt": "^4.2.0"
+	}
+}

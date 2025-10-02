@@ -1,0 +1,6 @@
+# node / npm
+node_modules/
+package-lock.json
+.env
+*.log
+opt_ins.json

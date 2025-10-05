@@ -328,7 +328,6 @@ app.action('confirm', async interaction => {
 	console.log(interaction.body.state.values);
 	console.log(getValues(interaction));
 	let blackId = interaction.body.state.values[Object.keys(interaction.body.state.values)[0]]["ignore-start-black"].selected_user || whiteId;
-	let response = `<@${whiteId}>`;
 
 	if (isInConversation(blackId, CCEmojis))
 		return await interaction.respond(`You can't start a game if <@${blackId}> is currently in a game! Try asking <@${blackId}> if they are done with their game.`);
@@ -357,6 +356,12 @@ app.action('confirm', async interaction => {
 		text: `<@${whiteId}> has started a Competitive Chess Emojis game against you in <#${interaction.body.channel.id}>. Head over there now to talk to them and earn some :siege-coin:! You are playing as Black.`
 	});
 	saveState(CCEmojis);
+});
+
+app.command('/ccemojis-leaderboard', async interaction => {
+	await interaction.ack();
+	let CCEmojis = getCCEmojis();
+	await interaction.respond(`This is the Competitive Chess Emojis game leaderboard! :siege-coin:\n\n` + Object.entries(CCEmojis.coins).sort((a, b) => b[1] - a[1]).map(user => `<@${user[0]}> has ${user[1]} :siege-coin:!`).join("\n"));
 });
 
 app.message(/secret button/i, async ({ message, say }) => {

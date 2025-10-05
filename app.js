@@ -6,34 +6,34 @@ const headers = {
 	"Content-Type": "application/json"
 };
 const mainEmojis = [
-	"chess-brilliant",
-	"great",
-	"bestmove",
-	"real-chess-alternative",
-	"excellent_move",
-	"good_move",
-	"real-chess-forced",
-	"book_move",
-	"inaccuracy",
-	"real-chess-mistake",
-	"real-chess-incorrect",
-	"real-chess-missed-win",
-	"blunder"
+	"brilliant-move",
+	"great-move",
+	"best-move",
+	"alternative-move",
+	"excellent-move",
+	"good-move",
+	"forced-move",
+	"book-move",
+	"inaccuracy-move",
+	"mistake-move",
+	"miss-move",
+	"missed-win-move",
+	"blunder-move"
 ];
 const sideEmojis = [
-	"real-chess-checkmate",
-	"real-chess-draw-black",
-	"real-chess-fast-win",
-	"real-chess-critical",
-	"real-chess-free-piece"
+	"checkmate-move",
+	"draw-black-move",
+	"fast-win-move",
+	"critical-move",
+	"free-piece-move"
 ];
 const convoEmojis = [
-	"real-chess-checkmate-white",
-	"real-chess-checkmate-black",
-	"real-chess-draw-white",
+	"checkmate-white-move",
+	"checkmate-black-move",
+	"draw-white-move",
 ];
-const systemMessage = `The user message consists of a message that is sent in a conversation. Your job is to analyze the message sent and determine how it might correspond as some chess move categories. For example, just like in a chess game, commonly known starting "moves," or messages, that are used at the beginning of a conversation are book moves (book_move). If a message is, based on the context, the most reasonable and most expectable message to send, it would be considered the best move (bestmove). If the message is, based on the context, just as reasonable as the expected bestmove, but less expected, it would be considered an alternative best move (real-chess-alternative). If a message is, based on the context, very reasonable and rather expectable, but maybe not the BEST response, it should be an excellent move (excellent_move). If a message is, based on the context, not bad, though not really the most expected and not really the best response, it should be a good move (good_move). If a message is, based on the context, BETTER than the most expected reasonable "best move," and a little unexpected while bringing a little extra information to the conversation, it should be a great move (great). If a message is, based on the context, much BETTER than a great move, very unexpected, provides a lot of new and radical information, and changes the direction of the conversation, it should be a brilliant move (chess-brilliant). If a message is, based on the context, the ONLY message that could possibly make sense, to the extent where it's basically just forced (for example if someone asks "Can you help me?" answering with "yes" or "ok" is forced), it should be a forced move (real-chess-forced). If a message is, based on the context, not really optimal, and not as good as maybe a good move, but still kind of ok, it should be an inaccuracy (inaccuracy). If a message is, based on the context, kind of bad, but not SUPER bad, yet still worse than an inaccuracy, it should be a mistake (real-chess-mistake). If a message is, based on the context, really bad, unreasonable, but still expectably the worst response, it should be a blunder (blunder). If, based on the context, there are many expected and pretty clear best and excellent moves, but the message sent is not any of them, instead being a simply acceptable message, the message should be considered a missed win (real-chess-missed-win). `
-	+ `If, based on the context, there are many expected and pretty clear best and excellent moves, but the message sent is a different move that should be fine, but loses much of the "advantage" that could have been had, it should be considered an incorrect move (real-chess-incorrect). You need to choose EXACTLY ONE of the following strings, separated by a space: ${mainEmojis.join(", ")}. Additionally, you need to choose up to two of the other possible types of categories. If a message, based on the context, is also either the best move, great, or brilliant, as well as being something that doesn't really have a good reponse because it's kind of a conversational "checkmate," the move should be a checkmate (real-chess-checkmate). If a message, based on the context, is not a bad move, and basically results in no good response because nobody is like completely winning, and it's kind of like a stalemate of some sort, the move should be a draw (real-chess-draw-black). If, based on the context, it appears as though the conversation is very short, maybe within six to two to three messages, and the message could be classified as a checkmate, classify it instead as fast win (real-chess-fast-win). If a message is, based on the context, classifiable as any really good move (brilliant, great, or best), it should be classified as critical (real-chess-critical). If a message is, based on the context, a pretty bad move (mistake or blunder), and the move seems to give something away, like an opportunity or other advantage, it should be classified as a free piece (real-chess-free-piece). You need to choose anywhere from ZERO TO TWO of the following strings, separated by spaces: ${sideEmojis.join(", ")}. Your final output MUST be EXACTLY the list of all the strings you chose (the original classification as well as the secondary classifications), separated with EXACTLY a space in between each string and nothing else.
+const systemMessage = `The user message consists of a message that is sent in a conversation. Your job is to analyze the message sent and determine how it might correspond as some chess move categories. For example, just like in a chess game, commonly known starting "moves," or messages, that are used at the beginning of a conversation are book moves (book-move). If a message is, based on the context, the most reasonable and most expectable message to send, it would be considered the best move (best-move). If the message is, based on the context, just as reasonable as the expected best move, but less expected, it would be considered an alternative best move (alternative-move). If a message is, based on the context, very reasonable and rather expectable, but maybe not the BEST response, it should be an excellent move (excellent-move). If a message is, based on the context, not bad, though not really the most expected and not really the best response, it should be a good move (good-move). If a message is, based on the context, BETTER than the most expected reasonable "best move," and a little unexpected while bringing a little extra information to the conversation, it should be a great move (great-move). If a message is, based on the context, much BETTER than a great move, very unexpected, provides a lot of new and radical information, and changes the direction of the conversation, it should be a brilliant move (brilliant-move). If a message is, based on the context, the ONLY message that could possibly make sense, to the extent where it's basically just forced (for example if someone asks "Can you help me?" answering with "yes" or "ok" is forced), it should be a forced move (forced-move). If a message is, based on the context, not really optimal, and not as good as maybe a good move, but still kind of ok, it should be an inaccuracy (inaccuracy-move). If a message is, based on the context, kind of bad, but not SUPER bad, yet still worse than an inaccuracy, it should be a mistake (mistake-move). If a message is, based on the context, really bad, unreasonable, but still expectably the worst response, it should be a blunder (blunder-move). If, based on the context, there are many expected and pretty clear best and excellent moves, but the message sent is not any of them, instead being a simply acceptable message, the message should be considered a missed win (missed-win-move). `
+	+ `If, based on the context, there are many expected and pretty clear best and excellent moves, but the message sent is a different move that should be fine, but loses much of the "advantage" that could have been had, it should be considered an incorrect move (miss-move). You need to choose EXACTLY ONE of the following strings, separated by a space: ${mainEmojis.join(", ")}. Additionally, you need to choose up to two of the other possible types of categories. If a message, based on the context, is also either the best move, great, or brilliant, as well as being something that doesn't really have a good reponse because it's kind of a conversational "checkmate," the move should be a checkmate (checkmate-move). If a message, based on the context, is not a bad move, and basically results in no good response because nobody is like completely winning, and it's kind of like a stalemate of some sort, the move should be a draw (draw-black-move). If, based on the context, it appears as though the conversation is very short, maybe within six to two to three messages, and the message could be classified as a checkmate, classify it instead as fast win (fast-win-move). If a message is, based on the context, classifiable as any really good move (brilliant, great, or best), it should be classified as critical (critical-move). If a message is, based on the context, a pretty bad move (mistake or blunder), and the move seems to give something away, like an opportunity or other advantage, it should be classified as a free piece (free-piece-move). You need to choose anywhere from ZERO TO TWO of the following strings, separated by spaces: ${sideEmojis.join(", ")}. Your final output MUST be EXACTLY the list of all the strings you chose (the original classification as well as the secondary classifications), separated with EXACTLY a space in between each string and nothing else.
 	
 	Finally, this is the context of the conversation. Do consider, however, that it may be incomplete (missing some users). Just so you know, it's currently `;
 const lraj23BotTestingId = "C09GR27104V";

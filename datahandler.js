@@ -1,9 +1,9 @@
 import fs from "node:fs";
 import { join } from "node:path";
 
-const dataFile = "opt_ins.json";
+const dataFile = "ccemojis.json";
 const dataFilePath = join(import.meta.dirname, dataFile);
-let optedIn = JSON.parse(fs.readFileSync(dataFilePath, "utf8"));
+let CCEmojis = JSON.parse(fs.readFileSync(dataFilePath, "utf8"));
 const shortMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const logStream = fs.createWriteStream(join(import.meta.dirname, "updates.log"), {
 	"flags": "a",
@@ -22,8 +22,8 @@ function getUserAt(text) {
 }
 
 function log(message) {
-	var now = new Date();
-	var timecode = "["
+	let now = new Date();
+	let timecode = "["
 		+ now.getFullYear()
 		+ "_"
 		+ shortMonths[now.getMonth()]
@@ -54,13 +54,13 @@ async function logInteraction(interaction) {
 	}
 }
 
-function getOptedIn() {
-	return cloneObj(optedIn);
+function getCCEmojis() {
+	return cloneObj(CCEmojis);
 }
 
 function saveState(data) {
 	// update 'OptedIn' so hourly backup is in the know
-	optedIn = cloneObj(data);
+	CCEmojis = cloneObj(data);
 
 	// add debug info to bottom (hence delete first)
 	let saveObj = cloneObj(data);
@@ -82,8 +82,8 @@ function cloneObj(obj) {
 		return obj;
 	}
 
-	var clone = new obj.constructor();
-	for (var key in obj) {
+	let clone = new obj.constructor();
+	for (let key in obj) {
 		if (obj.hasOwnProperty(key)) {
 			clone[key] = cloneObj(obj[key]);
 		}
@@ -94,7 +94,7 @@ function cloneObj(obj) {
 
 export {
 	saveState,
-	getOptedIn,
+	getCCEmojis,
 	logInteraction,
 	getUserAt,
 };

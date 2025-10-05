@@ -59,10 +59,8 @@ function getCCEmojis() {
 }
 
 function saveState(data) {
-	// update 'OptedIn' so hourly backup is in the know
 	CCEmojis = cloneObj(data);
 
-	// add debug info to bottom (hence delete first)
 	let saveObj = cloneObj(data);
 	delete saveObj.debug;
 	saveObj.debug = {

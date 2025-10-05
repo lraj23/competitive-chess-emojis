@@ -27,24 +27,54 @@ const sideEmojis = [
 	"critical-move",
 	"free-piece-move"
 ];
-const convoEmojis = [
-	"checkmate-white-move",
-	"checkmate-black-move",
-	"draw-white-move",
-];
-const systemMessage = `The user message consists of a message that is sent in a conversation. Your job is to analyze the message sent and determine how it might correspond as some chess move categories. For example, just like in a chess game, commonly known starting "moves," or messages, that are used at the beginning of a conversation are book moves (book-move). If a message is, based on the context, the most reasonable and most expectable message to send, it would be considered the best move (best-move). If the message is, based on the context, just as reasonable as the expected best move, but less expected, it would be considered an alternative best move (alternative-move). If a message is, based on the context, very reasonable and rather expectable, but maybe not the BEST response, it should be an excellent move (excellent-move). If a message is, based on the context, not bad, though not really the most expected and not really the best response, it should be a good move (good-move). If a message is, based on the context, BETTER than the most expected reasonable "best move," and a little unexpected while bringing a little extra information to the conversation, it should be a great move (great-move). If a message is, based on the context, much BETTER than a great move, very unexpected, provides a lot of new and radical information, and changes the direction of the conversation, it should be a brilliant move (brilliant-move). If a message is, based on the context, the ONLY message that could possibly make sense, to the extent where it's basically just forced (for example if someone asks "Can you help me?" answering with "yes" or "ok" is forced), it should be a forced move (forced-move). If a message is, based on the context, not really optimal, and not as good as maybe a good move, but still kind of ok, it should be an inaccuracy (inaccuracy-move). If a message is, based on the context, kind of bad, but not SUPER bad, yet still worse than an inaccuracy, it should be a mistake (mistake-move). If a message is, based on the context, really bad, unreasonable, but still expectably the worst response, it should be a blunder (blunder-move). If, based on the context, there are many expected and pretty clear best and excellent moves, but the message sent is not any of them, instead being a simply acceptable message, the message should be considered a missed win (missed-win-move). `
+const systemMessage = `The user message consists of a message that is sent in a conversation. Your job, as the Competitive Chess Emojis bot, is to analyze the message sent and determine how it might correspond as some chess move categories. For example, just like in a chess game, commonly known starting "moves," or messages, that are used at the beginning of a conversation are book moves (book-move). If a message is, based on the context, the most reasonable and most expectable message to send, it would be considered the best move (best-move). If the message is, based on the context, just as reasonable as the expected best move, but less expected, it would be considered an alternative best move (alternative-move). If a message is, based on the context, very reasonable and rather expectable, but maybe not the BEST response, it should be an excellent move (excellent-move). If a message is, based on the context, not bad, though not really the most expected and not really the best response, it should be a good move (good-move). If a message is, based on the context, BETTER than the most expected reasonable "best move," and a little unexpected while bringing a little extra information to the conversation, it should be a great move (great-move). If a message is, based on the context, much BETTER than a great move, very unexpected, provides a lot of new and radical information, and changes the direction of the conversation, it should be a brilliant move (brilliant-move). If a message is, based on the context, the ONLY message that could possibly make sense, to the extent where it's basically just forced (for example if someone asks "Can you help me?" answering with "yes" or "ok" is forced), it should be a forced move (forced-move). If a message is, based on the context, not really optimal, and not as good as maybe a good move, but still kind of ok, it should be an inaccuracy (inaccuracy-move). If a message is, based on the context, kind of bad, but not SUPER bad, yet still worse than an inaccuracy, it should be a mistake (mistake-move). If a message is, based on the context, really bad, unreasonable, but still expectably the worst response, it should be a blunder (blunder-move). If, based on the context, there are many expected and pretty clear best and excellent moves, but the message sent is not any of them, instead being a simply acceptable message, the message should be considered a missed win (missed-win-move). `
 	+ `If, based on the context, there are many expected and pretty clear best and excellent moves, but the message sent is a different move that should be fine, but loses much of the "advantage" that could have been had, it should be considered an incorrect move (miss-move). You need to choose EXACTLY ONE of the following strings, separated by a space: ${mainEmojis.join(", ")}. Additionally, you need to choose up to two of the other possible types of categories. If a message, based on the context, is also either the best move, great, or brilliant, as well as being something that doesn't really have a good reponse because it's kind of a conversational "checkmate," the move should be a checkmate (checkmate-move). If a message, based on the context, is not a bad move, and basically results in no good response because nobody is like completely winning, and it's kind of like a stalemate of some sort, the move should be a draw (draw-black-move). If, based on the context, it appears as though the conversation is very short, maybe within six to two to three messages, and the message could be classified as a checkmate, classify it instead as fast win (fast-win-move). If a message is, based on the context, classifiable as any really good move (brilliant, great, or best), it should be classified as critical (critical-move). If a message is, based on the context, a pretty bad move (mistake or blunder), and the move seems to give something away, like an opportunity or other advantage, it should be classified as a free piece (free-piece-move). You need to choose anywhere from ZERO TO TWO of the following strings, separated by spaces: ${sideEmojis.join(", ")}. Your final output MUST be EXACTLY the list of all the strings you chose (the original classification as well as the secondary classifications), separated with EXACTLY a space in between each string and nothing else.
-	
-	Finally, this is the context of the conversation. Do consider, however, that it may be incomplete (missing some users). Just so you know, it's currently `;
+
+Finally, this is the context of the conversation. Do consider, however, that it may be incomplete (missing some users). Just so you know, it's currently `;
+const competitiveEmojis = {
+	"fast-win-move": 10,
+	"checkmate-move": 8,
+	"brilliant-move": 5,
+	"great-move": 4,
+	"best-move": 3,
+	"alternative-move": 3,
+	"excellent-move": 2,
+	"good-move": 1,
+	"forced-move": 0,
+	"book-move": 0,
+	"draw-black-move": 0,
+	"inaccuracy-move": -1,
+	"mistake-move": -2,
+	"miss-move": -3,
+	"missed-win-move": -3,
+	"blunder-move": -4
+};
+const competitiveSideEmojis = {
+	"critical-move": 3,
+	"free-piece-move": -3,
+	"checkmate-white-move": 8,
+	"checkmate-black-move": 8,
+	"draw-white-move": 0
+};
+const competitiveSystemMessage = `The user message consists of a message that is sent in a conversation between two users. Your job, as the Competitive Chess Emojis bot, is to analyze the message sent and determine how it corresponds as a chess move categories. For example, just like in a chess game, the first few messages, as long as they are pretty common and well known, as well as starting the conversation, are book moves (book-move). If a message is, based on the conversation, the most reasonable and most expectable message to send, it would be considered the best move (best-move). If the message is, based on the conversation, just as reasonable as the expected best move, but less expected, it would be considered an alternative best move (alternative-move). If a message is, based on the conversation, very reasonable and rather expectable, but maybe not the BEST response, it should be an excellent move (excellent-move). If a message is, based on the conversation, not bad, though not really the most expected and not really the best response, it should be a good move (good-move). If a message is, based on the conversation, BETTER than the most expected reasonable "best move," and a little unexpected while bringing a little extra information to the conversation, it should be a great move (great-move). If a message is, based on the conversation, MUCH better than the great move, very unexpected, provides a lot of new and radical information, and changes the direction of the conversation, it should be a brilliant move (brilliant-move). If a message is, based on the conversation, the ONLY message that could possibly make sense, to the extent where it's basically just forced (for example if someone asks "Can you help me?" answering with "yes" or "ok" is forced), it should be a forced move (forced-move). If a message is, based on the conversation, not really optimal, and not as good as maybe a good move, but still kind of ok, it should be an inaccuracy (inaccuracy-move). If a message is, based on the conversation, kind of bad, but not SUPER bad, yet still worse than an inaccuracy, it should be a mistake (mistake-move). If a message is, based on the conversation, really bad, unreasonable, but still expectably the worst response, it should be a blunder (blunder-move). `
+	+ `If, based on the conversation, there are many expected and pretty clear best and excellent moves, but the message sent is not any of them, instead of being a simply acceptable message, the message should be considered a missed win (missed-win-move). If, based on the conversation, there are many expected and pretty clear best and excellent moves, but the message sent is a different move that should be fine, but loses much of the "advantage" that could have been had, it should be considered a miss (miss-move). If a message, based on the conversation, could have been the best move, great, or brilliant, as well as being something that doesn't really have a good response becaues it's kind of a conversational "checkmate," the move should be a checkmate (checkmate-move). Note that this should only be possible if the conversation appears to have ended with this message signifying the clear "winner" of the conversation. If a message, based on the conversation, is not a bad move, and basically results in the conversation ending, but without any sort of "winner" because the conversation reaches some sort of "stalemate," the move should be considered a draw (draw-black-move). If the conversation is underneath six or seven messages long and the message would be classified as a checkmate, classify it instead as fast win (fast-win-move). What you HAVE to do is choose EXACTLY ONE of the following strings, separated by a space: ${Object.keys(competitiveEmojis).join(", ")}. Additionally, you need to choose up to one of the other possible reactions. If a message is, based on the conversation, classifiable as any really good move (brilliant, great, or best), while it changes the course of the conversation, it should be classified as critical (critical-move). If a message is, based on the conversation, a pretty bad move (mistake or blunder), and the move seems to give something away, like an opportunity or other advantage, it should be classified as a free piece (free-piece-move). You need to choose anywhere from ZERO TO ONE of the following strings, separated by a space: ${Object.keys(competitiveSideEmojis).join(", ")}. Your final output MUST be EXACTLY the list of all the strings you chose (the main classification as well as the secondary reaction if applicable), separated with EXACTLY a space in between each string and nothing else.
+
+Finally, this is the entire conversation so far. Just so you know, it's currently `;
 const lraj23BotTestingId = "C09GR27104V";
 const lraj23UserId = "U0947SL6AKB";
 
+const isInConversation = (userId, CCEmojis) => !CCEmojis.conversations.map(convo => [convo.white, convo.black]).flat().reduce((product, id) => product * (+!(id === userId)), 1);
+const convoIsIn = (userId, CCEmojis) => CCEmojis.conversations.find(convo => [convo.white, convo.black].includes(userId));
+
 app.message('', async ({ message }) => {
-	const optedIn = getCCEmojis();
-	if (!optedIn.gameOptedIn.includes(message.user)) {
+	let CCEmojis = getCCEmojis();
+	let userId = message.user;
+	let isInConvo = isInConversation(userId, CCEmojis) && convoIsIn(userId, CCEmojis).channel === message.channel;
+	console.log(isInConvo);
+	if (!CCEmojis.gameOptedIn.includes(userId)) {
 		if (message.channel === lraj23BotTestingId) await app.client.chat.postEphemeral({
 			channel: lraj23BotTestingId,
-			user: message.user,
+			user: userId,
 			blocks: [
 				{
 					"type": "section",
@@ -59,7 +89,7 @@ app.message('', async ({ message }) => {
 		});
 		return;
 	}
-	if (message.text.toLowerCase().includes("secret button")) {
+	if (message.text.toLowerCase().includes("secret button") && !isInConvo) {
 		await app.client.reactions.add({
 			"channel": message.channel,
 			"name": mainEmojis[0],
@@ -67,13 +97,12 @@ app.message('', async ({ message }) => {
 		});
 		return;
 	}
-	let pastMessages = await app.client.conversations.history({
+	let pastMessages = (isInConvo ? convoIsIn(userId, CCEmojis).messages : (await app.client.conversations.history({
 		token: process.env.CEMOJIS_BOT_TOKEN,
 		channel: message.channel,
 		latest: Date.now(),
 		limit: 30
-	});
-	pastMessages = pastMessages.messages.filter((msg, i) => (optedIn.dataOptedIn.includes(msg.user) && i)).reverse();
+	})).messages.filter((msg, i) => (CCEmojis.dataOptedIn.includes(msg.user) && i)).reverse());
 	console.log(pastMessages);
 	console.log(message.text);
 	const response = await fetch(aiApiUrl, {
@@ -84,7 +113,7 @@ app.message('', async ({ message }) => {
 			"messages": [
 				{
 					"role": "system",
-					"content": systemMessage + new Date(Date.now()).toString() + ":\n" + pastMessages.map(msg => "User " + msg.user + " said (on " + new Date(1000 * msg.ts).toString() + "): " + msg.text).join("\n")
+					"content": (isInConvo ? competitiveSystemMessage : systemMessage) + new Date(Date.now()).toString() + ":\n" + pastMessages.map(msg => "User " + msg.user + " said (on " + new Date(1000 * msg.ts).toString() + "): " + msg.text).join("\n")
 				},
 				{
 					"role": "user",
@@ -96,17 +125,40 @@ app.message('', async ({ message }) => {
 	const data = await response.json();
 	console.log(data.choices[0].message);
 	let reactions = data.choices[0].message.content.split(" ");
-	reactions.forEach(async reaction => await app.client.reactions.add({
-		"channel": message.channel,
-		"name": [...mainEmojis, ...sideEmojis, ...convoEmojis].includes(reaction) ? reaction : "error_web",
-		"timestamp": message.ts
-	}));
-	if (optedIn.explanationOptedIn.includes(message.user)) await app.client.chat.postEphemeral({
+	if (isInConvo) {
+		let isPlayingBlack = Object.values(convoIsIn(userId, CCEmojis)).indexOf(userId);
+		convoIsIn(userId, CCEmojis).messages.push(message);
+		reactions.forEach(async reaction => {
+			if ([...Object.keys(competitiveEmojis), ...Object.keys(competitiveSideEmojis)].includes(reaction))
+				CCEmojis.coins[userId] += competitiveEmojis[reaction] || competitiveSideEmojis[reaction];
+			switch (reaction) {
+				case "fast-win-move":
+					CCEmojis.coins[convoIsIn(userId, CCEmojis)[isPlayingBlack ? "white" : "black"]] -= competitiveEmojis["fast-win-move"];
+					break;
+				case "checkmate-move":
+					CCEmojis.coins[convoIsIn(userId, CCEmojis)[isPlayingBlack ? "white" : "black"]] -= competitiveEmojis["checkmate-move"];
+					break;
+			}
+			await app.client.reactions.add({
+				channel: message.channel,
+				name: [...Object.keys(competitiveEmojis), ...Object.keys(competitiveSideEmojis)].includes(reaction) ? (reaction === "checkmate-move" ? "checkmate-" + (isPlayingBlack ? "black" : "white") + "-move" : (reaction === "draw-black-move" ? "draw-" + (isPlayingBlack ? "black" : "white") + "-move" : reaction)) : "error_web",
+				timestamp: message.ts
+			});
+		});
+	} else {
+		reactions.forEach(async reaction => await app.client.reactions.add({
+			"channel": message.channel,
+			"name": [...mainEmojis, ...sideEmojis].includes(reaction) ? reaction : "error_web",
+			"timestamp": message.ts
+		}));
+	}
+	if (CCEmojis.explanationOptedIn.includes(userId)) await app.client.chat.postEphemeral({
 		channel: message.channel,
-		user: message.user,
+		user: userId,
 		text: data.choices[0].message.reasoning || ":error_web:",
 		thread_ts: ((message.thread_ts == message.ts) ? undefined : message.thread_ts)
 	});
+	saveState(CCEmojis);
 });
 
 app.command('/ccemojis-data-opt-in', async interaction => {
@@ -211,7 +263,7 @@ app.command('/ccemojis-start-game', async interaction => {
 	let userId = interaction.payload.user_id;
 	if (!CCEmojis.gameOptedIn.includes(userId))
 		return await interaction.respond(`You aren't opted into the Competitive Chess Emojis game! :${mainEmojis[11]}: Opt in first with /ccemojis-game-opt-in before trying to play!`);
-	if (!CCEmojis.conversations.map(convo => [convo.white, convo.black]).flat().reduce((product, id) => product * (+!(id === userId)), 1))
+	if (isInConversation(userId, CCEmojis))
 		return await interaction.respond(`You can't start a game if you are currently in a game! If you finished your last game already, try running <command that doesn't work yet> and trying again.`);
 	await interaction.client.chat.postEphemeral({
 		"channel": interaction.command.channel_id,
@@ -267,10 +319,7 @@ app.action(/^ignore-.+$/, async interaction => await interaction.ack());
 
 app.action('cancel', async interaction => [await interaction.ack(), await interaction.respond({ "delete_original": true })]);
 
-const getValues = interaction => {
-	console.log(Object.entries(Object.values(interaction.body.state.values)[0])[0][0]);
-	return Object.fromEntries(Object.values(interaction.body.state.values).map(inputInfo => [(key => key[key.length - 1])(Object.entries(inputInfo)[0][0].split("-")), (input => ("selected_option" in input) ? input.selected_option?.value : (input || input))(Object.entries(inputInfo)[0][1])]));
-}
+const getValues = interaction => Object.fromEntries(Object.values(interaction.body.state.values).map(inputInfo => [(key => key[key.length - 1])(Object.entries(inputInfo)[0][0].split("-")), (input => ("selected_option" in input) ? input.selected_option?.value : (input || input))(Object.entries(inputInfo)[0][1])]));
 
 app.action('confirm', async interaction => {
 	await interaction.ack();
@@ -281,7 +330,7 @@ app.action('confirm', async interaction => {
 	let blackId = interaction.body.state.values[Object.keys(interaction.body.state.values)[0]]["ignore-start-black"].selected_user || whiteId;
 	let response = `<@${whiteId}>`;
 
-	if (!CCEmojis.conversations.map(convo => [convo.white, convo.black]).flat().reduce((product, id) => product * (+!(id === blackId)), 1))
+	if (isInConversation(blackId, CCEmojis))
 		return await interaction.respond(`You can't start a game if <@${blackId}> is currently in a game! Try asking <@${blackId}> if they are done with their game.`);
 
 	if (!CCEmojis.gameOptedIn.includes(blackId)) {
@@ -298,6 +347,7 @@ app.action('confirm', async interaction => {
 	CCEmojis.conversations.push({
 		white: whiteId,
 		black: blackId,
+		channel: interaction.body.channel.id,
 		initiated: Date.now(),
 		messages: []
 	});

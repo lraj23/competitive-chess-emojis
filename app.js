@@ -187,6 +187,7 @@ app.command('/ccemojis-game-opt-in', async interaction => {
 
 	await interaction.respond(`You opted into the Competitive Chess Emojis game!! :${sideEmojis[3]}: This also opts you into the bot's data collection.`);
 	CCEmojis.gameOptedIn.push(userId);
+	if (!CCEmojis.coins[userId]) CCEmojis.coins[userId] = 0;
 	if (!CCEmojis.dataOptedIn.includes(userId)) CCEmojis.dataOptedIn.push(userId);
 	saveState(CCEmojis);
 });

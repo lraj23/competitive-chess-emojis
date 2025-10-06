@@ -2,7 +2,7 @@
 
 ### Main Purpose
 
-The point of this bot is to analyze your conversations (though as of now, just each individual message) and react with an appropriate chess emoji for each message (brilliant, great, best, excellent, good, book, inaccuracy, mistake, missed win, blunder). Then, you earn coins and go up the leaderboard, also using your coins for other things (not yet but maybe?). To do this, it uses an AI from OpenRouter (specifically openai/gpt-oss-120b).
+The point of this bot is to analyze your conversations (though as of now, just each individual message) and react with an appropriate chess emoji for each message (brilliant, great, best, excellent, good, book, inaccuracy, mistake, missed win, blunder). Then, you earn coins and go up the leaderboard, also using your coins for other things (not yet but maybe?). To do this, it uses an AI from OpenRouter (specifically openai/gpt-oss-20b).
 
 ### Commands
 

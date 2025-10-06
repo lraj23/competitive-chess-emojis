@@ -109,7 +109,7 @@ app.message('', async ({ message }) => {
 		method: "POST",
 		headers,
 		body: JSON.stringify({
-			"model": "openai/gpt-oss-120b",
+			"model": "openai/gpt-oss-20b:free",
 			"messages": [
 				{
 					"role": "system",
@@ -123,6 +123,7 @@ app.message('', async ({ message }) => {
 		})
 	});
 	const data = await response.json();
+	console.log(data, data.choices);
 	console.log(data.choices[0].message);
 	let reactions = data.choices[0].message.content.split(" ");
 	if (isInConvo) {
@@ -358,13 +359,82 @@ app.action('confirm', async interaction => {
 	saveState(CCEmojis);
 });
 
-app.command('/ccemojis-leaderboard', async interaction => {
+app.command('/ccemojis-resign-game', async interaction => {
 	await interaction.ack();
 	let CCEmojis = getCCEmojis();
-	await interaction.respond(`This is the Competitive Chess Emojis game leaderboard! :siege-coin:\n\n` + Object.entries(CCEmojis.coins).sort((a, b) => b[1] - a[1]).map(user => `<@${user[0]}> has ${user[1]} :siege-coin:!`).join("\n"));
+	let userId = interaction.payload.user_id;
+
+	if (userId !== lraj23UserId)
+		return await interaction.respond(`Sorry, you can't resign your games right now. :resign-move: That feature is still in development!`);
+
+	if (!isInConversation(userId, CCEmojis))
+		return await interaction.respond(`You can't resign if you aren't playing one! Try starting a game with /ccemojis-start-game first!`);
+
+	await interaction.client.chat.postEphemeral({
+		"channel": interaction.command.channel_id,
+		"user": userId,
+		"blocks": [
+			{
+				"type": "section",
+				"text": {
+					"type": "mrkdwn",
+					"text": `Are you SURE you want to resign? :resign-move: You will lose 6-7 :siege-coin:!`
+				}
+			},
+			{
+				"type": "actions",
+				"elements": [
+					{
+						"type": "button",
+						"text": {
+							"type": "plain_text",
+							"text": ":x: No!",
+							"emoji": true
+						},
+						"value": "cancel",
+						"action_id": "cancel"
+					},
+					{
+						"type": "button",
+						"text": {
+							"type": "plain_text",
+							"text": ":resign-move: Yes",
+							"emoji": true
+						},
+						"value": "resign",
+						"action_id": "resign"
+					}
+				]
+			}
+		],
+		"text": `Are you SURE you want to resign? :resign-move: You will lose 6-7 :siege-coin:!`
+	});
 });
 
-app.message(/secret button/i, async ({ message, say }) => {
+app.action('resign', async interaction => {
+	await interaction.ack();
+	let CCEmojis = getCCEmojis();
+	let resignId = interaction.body.user.id;
+	console.log(interaction.body.state.values);
+	console.log(getValues(interaction));
+	let winnerId = convoIsIn(resignId, CCEmojis);
+
+	_ = _ => _;
+
+	let coinsLost = Math.floor(Math.random() * -2) - 5;
+	CCEmojis.coins[resignId] += coinsLost;
+	await interaction.respond(`<@${resignId}> has resigned their game. Your coin balance has changed by ${coinsLost} :siege-coin:`);
+	await app.client.chat.postMessage({
+		channel: blackId,
+		text: `<@${resignId}> has started a Competitive Chess Emojis game against you in <#${interaction.body.channel.id}>. Head over there now to talk to them and earn some :siege-coin:! You are playing as Black.`
+	});
+	CCEmojis.conversations.splice(CCEmojis.conversations.indexOf(convoIsIn(resignId, CCEmojis)), 1);
+	saveState(CCEmojis);
+});
+
+app.command('/ccemojis-leaderboard', async interaction => [await interaction.ack(), await interaction.respond(`This is the Competitive Chess Emojis game leaderboard! :siege-coin:\n\n` + Object.entries(getCCEmojis().coins).sort((a, b) => b[1] - a[1]).map(user => `<@${user[0]}> has ${user[1]} :siege-coin:!`).join("\n"))]);
+
+app.message(/secret button/i, async ({ message }) => {
 	await app.client.chat.postEphemeral({
 		channel: message.channel,
 		user: message.user,

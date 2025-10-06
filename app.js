@@ -97,10 +97,27 @@ app.message('', async ({ message }) => {
 		});
 		return;
 	}
+	console.log(Date.now(), CCEmojis.apiRequests, CCEmojis.apiRequests[userId])
+	if (message.ts - CCEmojis.apiRequests[userId] < 5) {
+		await app.client.reactions.add({
+			"channel": message.channel,
+			"name": "you-sent-a-message-too-fast-so-no-ai-request-to-avoid-rate-limit",
+			"timestamp": message.ts
+		});
+		if (CCEmojis.explanationOptedIn.includes(userId))
+			await app.client.chat.postEphemeral({
+				channel: message.channel,
+				user: userId,
+				text: `Your message was not reacted to because, in order to avoid getting rate limited, there is a cooldown of 5 seconds per user. :you-sent-a-message-too-fast-so-no-ai-request-to-avoid-rate-limit:`,
+				thread_ts: ((message.thread_ts == message.ts) ? undefined : message.thread_ts)
+			});
+		return;
+	} else CCEmojis.apiRequests[userId] = message.ts;
+	saveState(CCEmojis);
 	let pastMessages = (isInConvo ? convoIsIn(userId, CCEmojis).messages : (await app.client.conversations.history({
 		token: process.env.CEMOJIS_BOT_TOKEN,
 		channel: message.channel,
-		latest: Date.now(),
+		latest: message.ts * 1000,
 		limit: 30
 	})).messages.filter((msg, i) => (CCEmojis.dataOptedIn.includes(msg.user) && i)).reverse());
 	console.log(pastMessages);
@@ -123,6 +140,21 @@ app.message('', async ({ message }) => {
 		})
 	});
 	const data = await response.json();
+	if (data.error) if (data.error.message) if (data.error.message.split(":")[0] === "Rate limit exceeded") {
+		await app.client.reactions.add({
+			"channel": message.channel,
+			"name": "sorry-my-ai-api-got-rate-limited",
+			"timestamp": message.ts
+		});
+		if (CCEmojis.explanationOptedIn.includes(userId))
+			await app.client.chat.postEphemeral({
+				channel: message.channel,
+				user: userId,
+				text: `Your message was not reacted to because my AI API got rate limited. :sorry-my-ai-api-got-rate-limited:`,
+				thread_ts: ((message.thread_ts == message.ts) ? undefined : message.thread_ts)
+			});
+		return;
+	}
 	console.log(data, data.choices);
 	console.log(data.choices[0].message);
 	let reactions = data.choices[0].message.content.split(" ");

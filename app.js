@@ -467,6 +467,8 @@ app.action('resign', async interaction => {
 
 app.command('/ccemojis-leaderboard', async interaction => [await interaction.ack(), await interaction.respond(`This is the Competitive Chess Emojis game leaderboard! :siege-coin:\n\n` + Object.entries(getCCEmojis().coins).sort((a, b) => b[1] - a[1]).map(user => `<@${user[0]}> has ${user[1]} :siege-coin:!`).join("\n"))]);
 
+app.command('/ccemojis-help', async interaction => [await interaction.ack(), await interaction.respond(`This is the Competitive Chess Emojis bot! The point of this is to earn coins through conversations worth coins against other people. Your coins are based on how each message is rated as a chess move. Since this uses AI to determine how good a message is, you have to opt IN for it to work.\nFor more information, check out the readme at https://github.com/lraj23/competitive-chess-emojis`)]);
+
 app.message(/secret button/i, async ({ message }) => {
 	await app.client.chat.postEphemeral({
 		channel: message.channel,

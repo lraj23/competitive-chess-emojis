@@ -1,8 +1,7 @@
 import app from "./client.js";
 import { getCCEmojis, logInteraction, saveState } from "./datahandler.js";
-const aiApiUrl = "https://openrouter.ai/api/v1/chat/completions";
+const aiApiUrl = "https://ai.hackclub.com/chat/completions";
 const headers = {
-	"Authorization": `Bearer ${process.env.CEMOJIS_AI_API_KEY}`,
 	"Content-Type": "application/json"
 };
 const mainEmojis = [
@@ -70,7 +69,6 @@ app.message('', async ({ message }) => {
 	let CCEmojis = getCCEmojis();
 	let userId = message.user;
 	let isInConvo = isInConversation(userId, CCEmojis) && convoIsIn(userId, CCEmojis).channel === message.channel;
-	console.log(isInConvo);
 	if (!CCEmojis.gameOptedIn.includes(userId)) {
 		if (message.channel === lraj23BotTestingId) await app.client.chat.postEphemeral({
 			channel: lraj23BotTestingId,
@@ -97,8 +95,7 @@ app.message('', async ({ message }) => {
 		});
 		return;
 	}
-	console.log(Date.now(), CCEmojis.apiRequests, CCEmojis.apiRequests[userId])
-	if (message.ts - CCEmojis.apiRequests[userId] < 5) {
+	if (message.ts - CCEmojis.apiRequests[userId] < 1) {
 		await app.client.reactions.add({
 			"channel": message.channel,
 			"name": "you-sent-a-message-too-fast-so-no-ai-request-to-avoid-rate-limit",
@@ -120,13 +117,12 @@ app.message('', async ({ message }) => {
 		latest: message.ts * 1000,
 		limit: 30
 	})).messages.filter((msg, i) => (CCEmojis.dataOptedIn.includes(msg.user) && i)).reverse());
-	console.log(pastMessages);
 	console.log(message.text);
 	const response = await fetch(aiApiUrl, {
 		method: "POST",
 		headers,
 		body: JSON.stringify({
-			"model": "openai/gpt-oss-20b:free",
+			"model": "openai/gpt-oss-120b",
 			"messages": [
 				{
 					"role": "system",
@@ -155,7 +151,6 @@ app.message('', async ({ message }) => {
 			});
 		return;
 	}
-	console.log(data, data.choices);
 	console.log(data.choices[0].message);
 	let reactions = data.choices[0].message.content.split(" ");
 	if (isInConvo) {
@@ -353,14 +348,12 @@ app.action(/^ignore-.+$/, async interaction => await interaction.ack());
 
 app.action('cancel', async interaction => [await interaction.ack(), await interaction.respond({ "delete_original": true })]);
 
-const getValues = interaction => Object.fromEntries(Object.values(interaction.body.state.values).map(inputInfo => [(key => key[key.length - 1])(Object.entries(inputInfo)[0][0].split("-")), (input => ("selected_option" in input) ? input.selected_option?.value : (input || input))(Object.entries(inputInfo)[0][1])]));
+// const getValues = interaction => Object.fromEntries(Object.values(interaction.body.state.values).map(inputInfo => [(key => key[key.length - 1])(Object.entries(inputInfo)[0][0].split("-")), (input => ("selected_option" in input) ? input.selected_option?.value : (input || input))(Object.entries(inputInfo)[0][1])]));
 
 app.action('confirm', async interaction => {
 	await interaction.ack();
 	let CCEmojis = getCCEmojis();
 	let whiteId = interaction.body.user.id;
-	console.log(interaction.body.state.values);
-	console.log(getValues(interaction));
 	let blackId = interaction.body.state.values[Object.keys(interaction.body.state.values)[0]]["ignore-start-black"].selected_user || whiteId;
 
 	if (isInConversation(blackId, CCEmojis))
@@ -448,8 +441,6 @@ app.action('resign', async interaction => {
 	let CCEmojis = getCCEmojis();
 	let resignId = interaction.body.user.id;
 	let conversation = convoIsIn(resignId, CCEmojis);
-	console.log(interaction.body.state.values);
-	console.log(getValues(interaction));
 	let winnerId = conversation.black === resignId ? conversation.white : conversation.black;
 
 	let coinsLost = Math.floor(Math.random() * -2) - 5;

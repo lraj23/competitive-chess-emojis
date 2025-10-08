@@ -397,8 +397,7 @@ app.command('/ccemojis-resign-game', async interaction => {
 	let CCEmojis = getCCEmojis();
 	let userId = interaction.payload.user_id;
 
-	if (userId !== lraj23UserId)
-		return await interaction.respond(`Sorry, you can't resign your games right now. :resign-move: That feature is still in development!`);
+	await interaction.respond(`The resign feature works now! Until October 7, 8:30 PM Eastern Time, you couldn't resign.`);
 
 	if (!isInConversation(userId, CCEmojis))
 		return await interaction.respond(`You can't resign if you aren't playing one! Try starting a game with /ccemojis-start-game first!`);
@@ -448,26 +447,25 @@ app.action('resign', async interaction => {
 	await interaction.ack();
 	let CCEmojis = getCCEmojis();
 	let resignId = interaction.body.user.id;
+	let conversation = convoIsIn(resignId, CCEmojis);
 	console.log(interaction.body.state.values);
 	console.log(getValues(interaction));
-	let winnerId = convoIsIn(resignId, CCEmojis);
-
-	_ = _ => _;
+	let winnerId = conversation.black === resignId ? conversation.white : conversation.black;
 
 	let coinsLost = Math.floor(Math.random() * -2) - 5;
 	CCEmojis.coins[resignId] += coinsLost;
-	await interaction.respond(`<@${resignId}> has resigned their game. Your coin balance has changed by ${coinsLost} :siege-coin:`);
+	await interaction.respond(`<@${resignId}> has resigned their game against <@${winnerId}>. Your coin balance has changed by ${coinsLost} :siege-coin:`);
 	await app.client.chat.postMessage({
-		channel: blackId,
-		text: `<@${resignId}> has started a Competitive Chess Emojis game against you in <#${interaction.body.channel.id}>. Head over there now to talk to them and earn some :siege-coin:! You are playing as Black.`
+		channel: winnerId,
+		text: `<@${resignId}> has resigned their Competitive Chess Emojis game against you in <#${interaction.body.channel.id}>. They lost ${-coinsLost} :siege-coin: for resigning.`
 	});
-	CCEmojis.conversations.splice(CCEmojis.conversations.indexOf(convoIsIn(resignId, CCEmojis)), 1);
+	CCEmojis.conversations.splice(CCEmojis.conversations.indexOf(conversation), 1);
 	saveState(CCEmojis);
 });
 
 app.command('/ccemojis-leaderboard', async interaction => [await interaction.ack(), await interaction.respond(`This is the Competitive Chess Emojis game leaderboard! :siege-coin:\n\n` + Object.entries(getCCEmojis().coins).sort((a, b) => b[1] - a[1]).map(user => `<@${user[0]}> has ${user[1]} :siege-coin:!`).join("\n"))]);
 
-app.command('/ccemojis-help', async interaction => [await interaction.ack(), await interaction.respond(`This is the Competitive Chess Emojis bot! The point of this is to earn coins through conversations worth coins against other people. Your coins are based on how each message is rated as a chess move. Since this uses AI to determine how good a message is, you have to opt IN for it to work.\nFor more information, check out the readme at https://github.com/lraj23/competitive-chess-emojis`)]);
+app.command('/ccemojis-help', async interaction => [await interaction.ack(), await interaction.respond(`This is the Competitive Chess Emojis bot! The point of this is to earn coins through conversations worth coins against other people. Your coins are based on how each message is rated as a chess move. Since this uses AI to determine how good a message is, you have to opt IN for it to work.\nFor more information, check out the readme at https://github.com/lraj23/competitive-chess-emojis`), interaction.payload.user_id === lraj23UserId ? await interaction.respond(`Test but only for <@${lraj23UserId}. If you aren't him and you see this message, DM him IMMEDIATELY! about it.`) : null]);
 
 app.message(/secret button/i, async ({ message }) => {
 	await app.client.chat.postEphemeral({

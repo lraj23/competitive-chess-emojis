@@ -61,11 +61,15 @@ const competitiveSystemMessage = `The user message consists of a message that is
 Finally, this is the entire conversation so far. Just so you know, it's currently `;
 const lraj23BotTestingId = "C09GR27104V";
 const lraj23UserId = "U0947SL6AKB";
+const blackListedChannels = [
+	"C0188CY57PZ" // #meta
+];
 
 const isInConversation = (userId, CCEmojis) => !CCEmojis.conversations.map(convo => [convo.white, convo.black]).flat().reduce((product, id) => product * (+!(id === userId)), 1);
 const convoIsIn = (userId, CCEmojis) => CCEmojis.conversations.find(convo => [convo.white, convo.black].includes(userId));
 
 app.message('', async ({ message }) => {
+	if (blackListedChannels.includes(message.channel)) return;
 	let CCEmojis = getCCEmojis();
 	let userId = message.user;
 	let isInConvo = isInConversation(userId, CCEmojis) && convoIsIn(userId, CCEmojis).channel === message.channel;

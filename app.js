@@ -162,7 +162,7 @@ app.message('', async ({ message }) => {
 		convoIsIn(userId, CCEmojis).messages.push(message);
 		reactions.forEach(async reaction => {
 			if ([...Object.keys(competitiveEmojis), ...Object.keys(competitiveSideEmojis)].includes(reaction))
-				CCEmojis.coins[userId] += competitiveEmojis[reaction] || competitiveSideEmojis[reaction];
+				CCEmojis.coins[userId] += competitiveEmojis[reaction] !== undefined ? competitiveEmojis[reaction] : competitiveSideEmojis[reaction];
 			switch (reaction) {
 				case "fast-win-move":
 					CCEmojis.coins[convoIsIn(userId, CCEmojis)[isPlayingBlack ? "white" : "black"]] -= competitiveEmojis["fast-win-move"];

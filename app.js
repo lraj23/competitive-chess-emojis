@@ -61,16 +61,13 @@ const competitiveSystemMessage = `The user message consists of a message that is
 Finally, this is the entire conversation so far. Just so you know, it's currently `;
 const lraj23BotTestingId = "C09GR27104V";
 const lraj23UserId = "U0947SL6AKB";
-const blackListedChannels = [
-	"C0188CY57PZ" // #meta
-];
 
 const isInConversation = (userId, CCEmojis) => !CCEmojis.conversations.map(convo => [convo.white, convo.black]).flat().reduce((product, id) => product * (+!(id === userId)), 1);
 const convoIsIn = (userId, CCEmojis) => CCEmojis.conversations.find(convo => [convo.white, convo.black].includes(userId));
 
 app.message('', async ({ message }) => {
-	if (blackListedChannels.includes(message.channel)) return;
 	let CCEmojis = getCCEmojis();
+	if (!Object.keys(CCEmojis.whiteListedChannels).includes(message.channel)) return;
 	let userId = message.user;
 	let isInConvo = isInConversation(userId, CCEmojis) && convoIsIn(userId, CCEmojis).channel === message.channel;
 	if (!CCEmojis.gameOptedIn.includes(userId)) {
@@ -461,6 +458,47 @@ app.action('resign', async interaction => {
 app.command('/ccemojis-leaderboard', async interaction => [await interaction.ack(), await interaction.respond(`This is the Competitive Chess Emojis game leaderboard! :siege-coin:\n\n` + Object.entries(getCCEmojis().coins).sort((a, b) => b[1] - a[1]).map(user => `<@${user[0]}> has ${user[1]} :siege-coin:!`).join("\n"))]);
 
 app.command('/ccemojis-help', async interaction => [await interaction.ack(), await interaction.respond(`This is the Competitive Chess Emojis bot! The point of this is to earn coins through conversations worth coins against other people. Your coins are based on how each message is rated as a chess move. Since this uses AI to determine how good a message is, you have to opt IN for it to work.\nFor more information, check out the readme at https://github.com/lraj23/competitive-chess-emojis`), interaction.payload.user_id === lraj23UserId ? await interaction.respond(`Test but only for <@${lraj23UserId}. If you aren't him and you see this message, DM him IMMEDIATELY! about it.`) : null]);
+
+app.command('/ccemojis-channel-opt-in', async interaction => {
+	await interaction.ack();
+	await logInteraction(interaction);
+	const channelId = interaction.command.channel_id;
+	const userId = interaction.payload.user_id;
+	const channelInfo = await interaction.client.conversations.info({
+		channel: channelId,
+		include_full_members: true
+	});
+	console.log(channelInfo.channel.creator);
+	if (!(channelInfo.channel.creator === userId)) return await interaction.respond(`You aren't the channel creator, so you can not opt this bot in or out of the channel. :resign-move: You may have meant to run /ccemojis-game-opt-in instead`);
+
+	const channelName = channelInfo.channel.name;
+	let CCEmojis = getCCEmojis();
+	if (Object.keys(CCEmojis.whiteListedChannels).includes(channelId))
+		return await interaction.respond(`You have already opted <#${channelId}> into this bot! :${mainEmojis[8]}:`);
+	await interaction.say(`<@${userId}> opted <#${channelId}> into this bot! :${sideEmojis[3]}:`);
+	CCEmojis.whiteListedChannels[channelId] = channelName;
+	saveState(CCEmojis);
+});
+
+app.command('/ccemojis-channel-opt-out', async interaction => {
+	await interaction.ack();
+	await logInteraction(interaction);
+	const channelId = interaction.command.channel_id;
+	const userId = interaction.payload.user_id;
+	const channelInfo = await interaction.client.conversations.info({
+		channel: channelId,
+		include_full_members: true
+	});
+	console.log(channelInfo.channel.creator);
+	if (!(channelInfo.channel.creator === userId)) return await interaction.respond(`You aren't the channel creator, so you can not opt this bot in or out of the channel. :resign-move: You may have meant to run /ccemojis-game-opt-out instead`);
+
+	let CCEmojis = getCCEmojis();
+	if (!Object.keys(CCEmojis.whiteListedChannels).includes(channelId))
+		return await interaction.respond(`You can't opt <#${channelId}> out because it isn't opted in! :${sideEmojis[4]}:`);
+	await interaction.say(`<@${userId}> opted <#${channelId}> out of this bot! :${mainEmojis[11]}:`);
+	delete CCEmojis.whiteListedChannels[channelId];
+	saveState(CCEmojis);
+});
 
 app.message(/secret button/i, async ({ message }) => {
 	await app.client.chat.postEphemeral({

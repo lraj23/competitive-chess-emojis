@@ -61,11 +61,34 @@ const competitiveSystemMessage = `The user message consists of a message that is
 Finally, this is the entire conversation so far. Just so you know, it's currently `;
 const lraj23BotTestingId = "C09GR27104V";
 const lraj23UserId = "U0947SL6AKB";
+const gPortfolioDmId = "D09RTN8GH9Q";
+const commands = {};
 
 const isInConversation = (userId, CCEmojis) => !CCEmojis.conversations.map(convo => [convo.white, convo.black]).flat().reduce((product, id) => product * (+!(id === userId)), 1);
 const convoIsIn = (userId, CCEmojis) => CCEmojis.conversations.find(convo => [convo.white, convo.black].includes(userId));
 
 app.message('', async ({ message }) => {
+	if ((message.channel_type === "im") && (message.channel === gPortfolioDmId)) {
+		const info = message.text.split(";");
+		console.log(info[0], commands[info[0]]);
+		return commands[info[0]]({
+			ack: _ => _,
+			body: {
+				user_id: info[1],
+				channel_id: info[2]
+			},
+			respond: (response) => {
+				if (typeof response === "string") return app.client.chat.postEphemeral({
+					channel: info[2],
+					user: info[1],
+					text: response
+				});
+				if (!response.channel) response.channel = info[2];
+				if (!response.user) response.user = info[1];
+				app.client.chat.postEphemeral(response);
+			}
+		});
+	}
 	let CCEmojis = getCCEmojis();
 	if (!Object.keys(CCEmojis.whiteListedChannels).includes(message.channel)) return;
 	let userId = message.user;
@@ -190,10 +213,10 @@ app.message('', async ({ message }) => {
 	saveState(CCEmojis);
 });
 
-app.command('/ccemojis-data-opt-in', async interaction => {
+commands["data-opt-in"] = async interaction => {
 	await interaction.ack();
 	await logInteraction(interaction);
-	let userId = interaction.payload.user_id;
+	let userId = interaction.body.user_id;
 	let CCEmojis = getCCEmojis();
 
 	if (CCEmojis.dataOptedIn.includes(userId))
@@ -202,12 +225,13 @@ app.command('/ccemojis-data-opt-in', async interaction => {
 	await interaction.respond(`You opted into the Competitive Chess Emoji bot's data collection!! :${mainEmojis[4]}:`);
 	CCEmojis.dataOptedIn.push(userId);
 	saveState(CCEmojis);
-});
+};
+app.command('/ccemojis-data-opt-in', commands["data-opt-in"]);
 
-app.command('/ccemojis-game-opt-in', async interaction => {
+commands["game-opt-in"] = async interaction => {
 	await interaction.ack();
 	await logInteraction(interaction);
-	let userId = interaction.payload.user_id;
+	let userId = interaction.body.user_id;
 	let CCEmojis = getCCEmojis();
 
 	if (CCEmojis.gameOptedIn.includes(userId))
@@ -218,12 +242,13 @@ app.command('/ccemojis-game-opt-in', async interaction => {
 	if (!CCEmojis.coins[userId]) CCEmojis.coins[userId] = 0;
 	if (!CCEmojis.dataOptedIn.includes(userId)) CCEmojis.dataOptedIn.push(userId);
 	saveState(CCEmojis);
-});
+};
+app.command('/ccemojis-game-opt-in', commands["game-opt-in"]);
 
-app.command('/ccemojis-explain-opt-in', async interaction => {
+commands["explain-opt-in"] = async interaction => {
 	await interaction.ack();
 	await logInteraction(interaction);
-	let userId = interaction.payload.user_id;
+	let userId = interaction.body.user_id;
 	let CCEmojis = getCCEmojis();
 
 	if (CCEmojis.explanationOptedIn.includes(userId))
@@ -234,12 +259,13 @@ app.command('/ccemojis-explain-opt-in', async interaction => {
 	if (!CCEmojis.gameOptedIn.includes(userId)) CCEmojis.gameOptedIn.push(userId);
 	if (!CCEmojis.dataOptedIn.includes(userId)) CCEmojis.dataOptedIn.push(userId);
 	saveState(CCEmojis);
-});
+};
+app.command('/ccemojis-explain-opt-in', commands["explain-opt-in"]);
 
-app.command('/ccemojis-data-opt-out', async interaction => {
+commands["data-opt-out"] = async interaction => {
 	await interaction.ack();
 	await logInteraction(interaction);
-	let userId = interaction.payload.user_id;
+	let userId = interaction.body.user_id;
 	let CCEmojis = getCCEmojis();
 
 	if (CCEmojis.dataOptedIn.includes(userId)) {
@@ -252,12 +278,13 @@ app.command('/ccemojis-data-opt-out', async interaction => {
 	}
 
 	await interaction.respond(`You can't opt out because you aren't opted into the Competitive Chess Emojis bot's data collection! :${sideEmojis[4]}:`);
-});
+};
+app.command('/ccemojis-data-opt-out', commands["data-opt-out"]);
 
-app.command('/ccemojis-game-opt-out', async interaction => {
+commands["game-opt-out"] = async interaction => {
 	await interaction.ack();
 	await logInteraction(interaction);
-	let userId = interaction.payload.user_id;
+	let userId = interaction.body.user_id;
 	let CCEmojis = getCCEmojis();
 
 	if (CCEmojis.gameOptedIn.includes(userId)) {
@@ -269,12 +296,13 @@ app.command('/ccemojis-game-opt-out', async interaction => {
 	}
 
 	await interaction.respond(`You can't opt out because you aren't opted into the Competitive Chess Emojis game! :${sideEmojis[4]}:`);
-});
+};
+app.command('/ccemojis-game-opt-out', commands["game-opt-out"]);
 
-app.command('/ccemojis-explain-opt-out', async interaction => {
+commands["explain-opt-out"] = async interaction => {
 	await interaction.ack();
 	await logInteraction(interaction);
-	let userId = interaction.payload.user_id;
+	let userId = interaction.body.user_id;
 	let CCEmojis = getCCEmojis();
 
 	if (CCEmojis.explanationOptedIn.includes(userId)) {
@@ -285,18 +313,19 @@ app.command('/ccemojis-explain-opt-out', async interaction => {
 	}
 
 	await interaction.respond(`You can't opt out because you aren't opted into the Competitive Chess Emojis bot's explanations! :${sideEmojis[4]}:`);
-});
+};
+app.command('/ccemojis-explain-opt-out', commands["explain-opt-out"]);
 
-app.command('/ccemojis-start-game', async interaction => {
+commands["start-game"] = async interaction => {
 	await interaction.ack();
 	let CCEmojis = getCCEmojis();
-	let userId = interaction.payload.user_id;
+	let userId = interaction.body.user_id;
 	if (!CCEmojis.gameOptedIn.includes(userId))
 		return await interaction.respond(`You aren't opted into the Competitive Chess Emojis game! :${mainEmojis[11]}: Opt in first with /ccemojis-game-opt-in before trying to play!`);
 	if (isInConversation(userId, CCEmojis))
 		return await interaction.respond(`You can't start a game if you are currently in a game! If you finished your last game already, try running <command that doesn't work yet> and trying again.`);
-	await interaction.client.chat.postEphemeral({
-		"channel": interaction.command.channel_id,
+	await app.client.chat.postEphemeral({
+		"channel": interaction.body.channel_id,
 		"user": userId,
 		"blocks": [
 			{
@@ -343,13 +372,12 @@ app.command('/ccemojis-start-game', async interaction => {
 		],
 		"text": `Choose someone to play against:`
 	});
-});
+};
+app.command('/ccemojis-start-game', commands["start-game"]);
 
 app.action(/^ignore-.+$/, async interaction => await interaction.ack());
 
 app.action('cancel', async interaction => [await interaction.ack(), await interaction.respond({ "delete_original": true })]);
-
-// const getValues = interaction => Object.fromEntries(Object.values(interaction.body.state.values).map(inputInfo => [(key => key[key.length - 1])(Object.entries(inputInfo)[0][0].split("-")), (input => ("selected_option" in input) ? input.selected_option?.value : (input || input))(Object.entries(inputInfo)[0][1])]));
 
 app.action('confirm', async interaction => {
 	await interaction.ack();
@@ -360,16 +388,8 @@ app.action('confirm', async interaction => {
 	if (isInConversation(blackId, CCEmojis))
 		return await interaction.respond(`You can't start a game if <@${blackId}> is currently in a game! Try asking <@${blackId}> if they are done with their game.`);
 
-	if (!CCEmojis.gameOptedIn.includes(blackId)) {
-		await interaction.respond(`<@${blackId}> isn't opted into the Competitive Chess Emojis game! They need to opt in first with /ccemojis-game-opt-in before they can play!`);
-		// if (whiteId === lraj23UserId)
-		// await app.client.chat.postEphemeral({
-		// 	channel: blackId,
-		// 	user: blackId,
-		// 	text: `<@${whiteId}> tried to start a Competitive Chess Emojis game against you, but you aren't opted in. If you want to play, run /ccemojis-game-opt-in in <#${lraj23BotTestingId}> and challenge them back. If you don't want to receive this message again, try telling <@${whiteId}> that you don't want to play against them. (I will eventually make a button to opt out of game requests - lraj23, bot developer.)`
-		// });
-		return;
-	}
+	if (!CCEmojis.gameOptedIn.includes(blackId))
+		return await interaction.respond(`<@${blackId}> isn't opted into the Competitive Chess Emojis game! They need to opt in first with /ccemojis-game-opt-in before they can play!`);
 
 	CCEmojis.conversations.push({
 		white: whiteId,
@@ -386,18 +406,18 @@ app.action('confirm', async interaction => {
 	saveState(CCEmojis);
 });
 
-app.command('/ccemojis-resign-game', async interaction => {
+commands["resign-game"] = async interaction => {
 	await interaction.ack();
 	let CCEmojis = getCCEmojis();
-	let userId = interaction.payload.user_id;
+	let userId = interaction.body.user_id;
 
 	await interaction.respond(`The resign feature works now! Until October 7, 8:30 PM Eastern Time, you couldn't resign.`);
 
 	if (!isInConversation(userId, CCEmojis))
 		return await interaction.respond(`You can't resign if you aren't playing one! Try starting a game with /ccemojis-start-game first!`);
 
-	await interaction.client.chat.postEphemeral({
-		"channel": interaction.command.channel_id,
+	await app.client.chat.postEphemeral({
+		"channel": interaction.body.channel_id,
 		"user": userId,
 		"blocks": [
 			{
@@ -435,7 +455,8 @@ app.command('/ccemojis-resign-game', async interaction => {
 		],
 		"text": `Are you SURE you want to resign? :resign-move: You will lose 6-7 :siege-coin:!`
 	});
-});
+	app.command('/ccemojis-resign-game', commands["resign-game"]);
+};
 
 app.action('resign', async interaction => {
 	await interaction.ack();
@@ -455,16 +476,18 @@ app.action('resign', async interaction => {
 	saveState(CCEmojis);
 });
 
-app.command('/ccemojis-leaderboard', async interaction => [await interaction.ack(), await interaction.respond(`This is the Competitive Chess Emojis game leaderboard! :siege-coin:\n\n` + Object.entries(getCCEmojis().coins).sort((a, b) => b[1] - a[1]).map(user => `<@${user[0]}> has ${user[1]} :siege-coin:!`).join("\n"))]);
+commands.leaderboard = async interaction => [await interaction.ack(), await interaction.respond(`This is the Competitive Chess Emojis game leaderboard! :siege-coin:\n\n` + Object.entries(getCCEmojis().coins).sort((a, b) => b[1] - a[1]).map(user => `<@${user[0]}> has ${user[1]} :siege-coin:!`).join("\n"))];
+app.command('/ccemojis-leaderboard', commands.leaderboard);
 
-app.command('/ccemojis-help', async interaction => [await interaction.ack(), await interaction.respond(`This is the Competitive Chess Emojis bot! The point of this is to earn coins through conversations worth coins against other people. Your coins are based on how each message is rated as a chess move. Since this uses AI to determine how good a message is, you have to opt IN for it to work.\nFor more information, check out the readme at https://github.com/lraj23/competitive-chess-emojis`), interaction.payload.user_id === lraj23UserId ? await interaction.respond(`Test but only for <@${lraj23UserId}. If you aren't him and you see this message, DM him IMMEDIATELY! about it.`) : null]);
+commands.help = async interaction => [await interaction.ack(), await interaction.respond(`This is the Competitive Chess Emojis bot! The point of this is to earn coins through conversations worth coins against other people. Your coins are based on how each message is rated as a chess move. Since this uses AI to determine how good a message is, you have to opt IN for it to work.\nFor more information, check out the readme at https://github.com/lraj23/competitive-chess-emojis`), interaction.body.user_id === lraj23UserId ? await interaction.respond(`Test but only for <@${lraj23UserId}>. If you aren't him and you see this message, DM him IMMEDIATELY! about it.`) : null];
+app.command('/ccemojis-help', commands.help);
 
-app.command('/ccemojis-channel-opt-in', async interaction => {
+commands["channel-opt-in"] = async interaction => {
 	await interaction.ack();
 	await logInteraction(interaction);
-	const channelId = interaction.command.channel_id;
-	const userId = interaction.payload.user_id;
-	const channelInfo = await interaction.client.conversations.info({
+	const channelId = interaction.body.channel_id;
+	const userId = interaction.body.user_id;
+	const channelInfo = await app.client.conversations.info({
 		channel: channelId,
 		include_full_members: true
 	});
@@ -475,17 +498,18 @@ app.command('/ccemojis-channel-opt-in', async interaction => {
 	let CCEmojis = getCCEmojis();
 	if (Object.keys(CCEmojis.whiteListedChannels).includes(channelId))
 		return await interaction.respond(`You have already opted <#${channelId}> into this bot! :${mainEmojis[8]}:`);
-	await interaction.say(`<@${userId}> opted <#${channelId}> into this bot! :${sideEmojis[3]}:`);
+	await app.client.chat.postMessage({ channel: channelId, text: `<@${userId}> opted <#${channelId}> into this bot! :${sideEmojis[3]}:` });
 	CCEmojis.whiteListedChannels[channelId] = channelName;
 	saveState(CCEmojis);
-});
+};
+app.command('/ccemojis-channel-opt-in', commands["channel-opt-in"]);
 
-app.command('/ccemojis-channel-opt-out', async interaction => {
+commands["channel-opt-out"] = async interaction => {
 	await interaction.ack();
 	await logInteraction(interaction);
-	const channelId = interaction.command.channel_id;
-	const userId = interaction.payload.user_id;
-	const channelInfo = await interaction.client.conversations.info({
+	const channelId = interaction.body.channel_id;
+	const userId = interaction.body.user_id;
+	const channelInfo = await app.client.conversations.info({
 		channel: channelId,
 		include_full_members: true
 	});
@@ -495,10 +519,11 @@ app.command('/ccemojis-channel-opt-out', async interaction => {
 	let CCEmojis = getCCEmojis();
 	if (!Object.keys(CCEmojis.whiteListedChannels).includes(channelId))
 		return await interaction.respond(`You can't opt <#${channelId}> out because it isn't opted in! :${sideEmojis[4]}:`);
-	await interaction.say(`<@${userId}> opted <#${channelId}> out of this bot! :${mainEmojis[11]}:`);
+	await app.client.chat.postMessage({ channel: channelId, text: `<@${userId}> opted <#${channelId}> out of this bot! :${mainEmojis[11]}:` });
 	delete CCEmojis.whiteListedChannels[channelId];
 	saveState(CCEmojis);
-});
+};
+app.command('/ccemojis-channel-opt-out', commands["channel-opt-out"]);
 
 app.message(/secret button/i, async ({ message }) => {
 	await app.client.chat.postEphemeral({

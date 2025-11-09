@@ -44,8 +44,8 @@ function log(message) {
 }
 
 async function logInteraction(interaction) {
-	let user = `<@${interaction.payload.user_id || interaction.body.user.id || "<no id>"}|${interaction.payload.user_name || interaction.body.user.name || "<no name>"}>`;
-	let channel = interaction.payload.channel_name || interaction.body.channel.name || "<no channel>";
+	let user = `<@${interaction.body.user_id || "<no id>"}|${interaction.body.user_name || "<no name>"}>`;
+	let channel = interaction.body.channel_name || "<no channel>";
 
 	if (interaction.command) {
 		log(`[${channel}] ${user} ran command ${interaction.command.command}`);

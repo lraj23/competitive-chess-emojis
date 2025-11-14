@@ -1,7 +1,8 @@
 import app from "./client.js";
 import { getCCEmojis, logInteraction, saveState } from "./datahandler.js";
-const aiApiUrl = "https://ai.hackclub.com/chat/completions";
+const aiApiUrl = "https://ai.hackclub.com/proxy/v1/chat/completions";
 const headers = {
+	"Authorization": "Bearer " + process.env.CEMOJIS_AI_API_KEY,
 	"Content-Type": "application/json"
 };
 const mainEmojis = [
